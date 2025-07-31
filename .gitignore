@@ -9,6 +9,7 @@ target/
 .idea/compiler.xml
 .idea/libraries/
 .idea/
+.logs/
 .dispatcher/src/main/resources/application.properties
 *.iws
 *.iml
