@@ -7,6 +7,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Configuration;
 
 import static by.psrer.model.RabbitQueue.ANSWER_MESSAGE;
+import static by.psrer.model.RabbitQueue.BUTTON_CALLBACK;
 import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 
 @Configuration
@@ -24,5 +25,10 @@ public class RabbitConfiguration {
     @Bean
     public Queue answerMessageQueue() {
         return new Queue(ANSWER_MESSAGE);
+    }
+
+    @Bean
+    public Queue buttonCallbackQueue() {
+        return new Queue(BUTTON_CALLBACK);
     }
 }
