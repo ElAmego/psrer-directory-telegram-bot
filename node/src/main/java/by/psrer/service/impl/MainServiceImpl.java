@@ -5,8 +5,12 @@ import by.psrer.service.ProducerService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.List;
 
 @Service
 @Log4j
@@ -21,13 +25,11 @@ public final class MainServiceImpl implements MainService {
     public void processTextMessage(final Update update) {
         var message = update.getMessage();
         var chatId = message.getChatId().toString();
-        sendAnswer("Сообщение получено!", chatId);
     }
 
-    private void sendAnswer(final String output, final String chatId) {
-        var sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(output);
-        producerService.produceAnswer(sendMessage);
+    @Override
+    public void processCallback(final CallbackQuery callbackQuery) {
+        var chatId = callbackQuery.getMessage().getChatId();
+        var action = callbackQuery.getData();
     }
 }

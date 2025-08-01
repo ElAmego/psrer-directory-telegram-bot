@@ -1,11 +1,14 @@
 package by.psrer.controller;
 
+import by.psrer.service.CallbackProducer;
 import by.psrer.service.UpdateProducer;
 import by.psrer.utils.MessageUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import static by.psrer.model.RabbitQueue.BUTTON_CALLBACK;
 import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 
 @Component
@@ -14,10 +17,12 @@ public final class UpdateController {
     private TelegramBot telegramBot;
     private final MessageUtils messageUtils;
     private final UpdateProducer updateProducer;
+    private final CallbackProducer callbackProducer;
 
-    public UpdateController(final MessageUtils messageUtils, final UpdateProducer updateProducer) {
+    public UpdateController(final MessageUtils messageUtils, final UpdateProducer updateProducer, CallbackProducer callbackProducer) {
         this.messageUtils = messageUtils;
         this.updateProducer = updateProducer;
+        this.callbackProducer = callbackProducer;
     }
 
     public void registerBot(final TelegramBot telegramBot) {
@@ -32,6 +37,8 @@ public final class UpdateController {
 
         if (update.hasMessage()) {
             distributeMessagesByType(update);
+        } else if (update.hasCallbackQuery()) {
+            processCallback(update);
         } else {
             log.error("Received unsupported message type " + update);
         }
@@ -49,6 +56,10 @@ public final class UpdateController {
 
     private void processTextMessage(final Update update) {
         updateProducer.produce(TEXT_MESSAGE_UPDATE, update);
+    }
+
+    private void processCallback(final Update update) {
+        callbackProducer.produce(BUTTON_CALLBACK, update.getCallbackQuery());
     }
 
     private void setUnsupportedMessageTypeView(final Update update) {
