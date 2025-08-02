@@ -15,6 +15,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -28,12 +31,14 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
+    private Long telegramUserId;
     private String firstName;
     private String lastName;
     private String userName;
     @Enumerated(EnumType.STRING)
     private UserState userState;
-    private Long telegramUserId;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @CreationTimestamp
+    private LocalDateTime firstLoginDate;
 }
