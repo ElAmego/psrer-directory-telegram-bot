@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import static by.psrer.entity.enums.Role.USER;
 import static by.psrer.entity.enums.UserState.BASIC;
+import static by.psrer.service.enums.ServiceCommands.HELP;
+import static by.psrer.service.enums.ServiceCommands.START;
 
 @Service
 @Log4j
@@ -27,10 +29,42 @@ public final class CommandServiceImpl implements CommandService {
     @Override
     public void handleCommand(final Update update) {
         var appUser = findOrSaveAppUser(update);
-        String output = "";
-        output+= "Сообщение получено!";
+
+        String output = processServiceCommand(update);
 
         sendMessage(appUser, output);
+    }
+
+    private String processServiceCommand(final Update update) {
+        final String cmd = update.getMessage().getText();
+
+        if (START.equals(cmd)) {
+            return handleCommandStart();
+        } else if (HELP.equals(cmd)) {
+            return handleCommandHelp();
+        } else {
+            return "Вы ввели неизвестную команду.\n" +
+                    "Список доступных команд: /help";
+        }
+    }
+
+    private String handleCommandHelp() {
+        return "Список доступных команд:\n" +
+                "/start – Стартовая страница бота.\n" +
+                "/help – Список доступных команд.";
+    }
+
+    private String handleCommandStart() {
+        return "Добро пожаловать в Экскурсионный справочник ПГРЭЗ!\n" +
+                "\n" +
+                "Тут вы найдёте ответы на часто задаваемые вопросы, список доступных на данный момент маршрутов и их " +
+                "описание.\n" +
+                "\n" +
+                "Как с нами связаться?\n" +
+                "\uD83D\uDCDE+375(29)1111111 (Доступен также в WhatsApp, Telegram, Viber)\n" +
+                "☎\uFE0F+8(029)4033333\n" +
+                "\n" +
+                "Список доступных команд: /help";
     }
 
     private void sendMessage(final AppUser appUser, final String output) {
