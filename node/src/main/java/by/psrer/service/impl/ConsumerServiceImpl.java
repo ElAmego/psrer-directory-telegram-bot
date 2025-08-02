@@ -1,7 +1,8 @@
 package by.psrer.service.impl;
 
+import by.psrer.service.CallbackService;
 import by.psrer.service.ConsumerService;
-import by.psrer.service.MainService;
+import by.psrer.service.CommandService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -14,23 +15,25 @@ import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 @Service
 @Log4j
 public final class ConsumerServiceImpl implements ConsumerService {
-    private MainService mainService;
+    private CommandService mainService;
+    private CallbackService callbackService;
 
-    public ConsumerServiceImpl(final MainService mainService) {
+    public ConsumerServiceImpl(final CommandService mainService, final CallbackService callbackService) {
         this.mainService = mainService;
+        this.callbackService = callbackService;
     }
 
     @Override
     @RabbitListener(queues = TEXT_MESSAGE_UPDATE)
     public void consumeTextMessageUpdates(final Update update) {
         log.debug("NODE: Text message is received");
-        mainService.processTextMessage(update);
+        mainService.handleCommand(update);
     }
 
     @Override
     @RabbitListener(queues = BUTTON_CALLBACK)
     public void consumeCallback(final CallbackQuery callbackQuery) {
         log.debug("NODE: Callback is received");
-        mainService.processCallback(callbackQuery);
+        callbackService.handleCallback(callbackQuery);
     }
 }
