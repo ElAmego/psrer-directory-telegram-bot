@@ -10,7 +10,8 @@ target/
 .idea/libraries/
 .idea/
 .logs/
-.dispatcher/src/main/resources/application.properties
+.dispatcher/src/main/resources/
+.node/src/main/resources/
 *.iws
 *.iml
 *.ipr

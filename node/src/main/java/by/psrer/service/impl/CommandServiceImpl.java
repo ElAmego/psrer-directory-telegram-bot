@@ -9,6 +9,7 @@ import by.psrer.service.ProducerService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -50,6 +51,8 @@ public final class CommandServiceImpl implements CommandService {
         final String cmd = update.getMessage().getText();
 
         if (appUser.getUserState() == QUESTION_SELECTION) {
+            deleteUserMessage(appUser, update);
+
             if (CANCEL.equals(cmd)) {
                 return cancelSelection(appUser);
             }
@@ -64,9 +67,17 @@ public final class CommandServiceImpl implements CommandService {
         } else if (FAQ.equals(cmd)) {
             return handleCommandFaq(appUser);
         } else {
+            deleteUserMessage(appUser, update);
             return "Вы ввели неизвестную команду.\n" +
                     "Список доступных команд: /help";
         }
+    }
+
+    private void deleteUserMessage(final AppUser appUser, final Update update) {
+        final DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(appUser.getTelegramUserId());
+        deleteMessage.setMessageId(update.getMessage().getMessageId());
+        producerService.produceDeleteMessage(deleteMessage);
     }
 
     private String questionSelectionProcess(final String cmd) {

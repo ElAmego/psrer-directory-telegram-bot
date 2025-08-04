@@ -6,6 +6,7 @@ import by.psrer.utils.MessageUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static by.psrer.model.RabbitQueue.BUTTON_CALLBACK;
@@ -69,5 +70,9 @@ public final class UpdateController {
 
     public void setView(final SendMessage sendMessage) {
         telegramBot.sendAnswerMessage(sendMessage);
+    }
+
+    public void deleteTelegramMessage(final DeleteMessage deleteMessage) {
+        telegramBot.deleteMessage(deleteMessage);
     }
 }
