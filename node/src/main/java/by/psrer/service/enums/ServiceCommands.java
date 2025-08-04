@@ -2,6 +2,8 @@ package by.psrer.service.enums;
 
 public enum ServiceCommands {
     START("/start"),
+    FAQ("/faq"),
+    CANCEL("/cancel"),
     HELP("/help");
 
     private final String cmd;
