@@ -15,11 +15,11 @@ import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 @Service
 @Log4j
 public final class ConsumerServiceImpl implements ConsumerService {
-    private CommandService mainService;
-    private CallbackService callbackService;
+    private final CommandService commandService;
+    private final CallbackService callbackService;
 
-    public ConsumerServiceImpl(final CommandService mainService, final CallbackService callbackService) {
-        this.mainService = mainService;
+    public ConsumerServiceImpl(final CommandService commandService, final CallbackService callbackService) {
+        this.commandService = commandService;
         this.callbackService = callbackService;
     }
 
@@ -27,7 +27,7 @@ public final class ConsumerServiceImpl implements ConsumerService {
     @RabbitListener(queues = TEXT_MESSAGE_UPDATE)
     public void consumeTextMessageUpdates(final Update update) {
         log.debug("NODE: Text message is received");
-        mainService.handleCommand(update);
+        commandService.handleCommand(update);
     }
 
     @Override
