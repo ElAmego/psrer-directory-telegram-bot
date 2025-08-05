@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 @Service
 @Log4j
 public final class CallbackServiceImpl implements CallbackService {
-    private ProducerService producerService;
+    private final ProducerService producerService;
 
     public CallbackServiceImpl(final ProducerService producerService) {
         this.producerService = producerService;
