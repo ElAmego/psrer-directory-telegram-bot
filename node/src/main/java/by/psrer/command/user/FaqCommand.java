@@ -1,8 +1,9 @@
 package by.psrer.command.user;
 
 import by.psrer.entity.AppUser;
+import by.psrer.utils.impl.Answer;
 
 public interface FaqCommand {
-    String handleCommandFaq(final AppUser appUser);
-    String questionSelectionProcess(final String cmd);
+    Answer handleCommandFaq(final AppUser appUser);
+    Answer questionSelectionProcess(final String cmd);
 }

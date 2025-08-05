@@ -5,6 +5,7 @@ import by.psrer.dao.AppUserDAO;
 import by.psrer.dao.QuestionDAO;
 import by.psrer.entity.AppUser;
 import by.psrer.entity.Question;
+import by.psrer.utils.impl.Answer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +24,15 @@ public final class FaqCommandImpl implements FaqCommand {
     }
 
     @Override
-    public String handleCommandFaq(final AppUser appUser) {
+    public Answer handleCommandFaq(final AppUser appUser) {
+        final List<Question> questionList = questionDAO.findAll();
+
+        if (questionList.isEmpty()) {
+            return new Answer("Список вопросов пуст.", null);
+        }
+
         final StringBuilder output = new StringBuilder("Вы переключились в режим выбора вопросов, для выхода из режима " +
                 "введите команду /cancel. Введите в чат цифру интересующего вас вопроса (например: 1)\nСписок вопросов:");
-
-        final List<Question> questionList = questionDAO.findAll();
         int inc = 0;
 
         for (Question question: questionList) {
@@ -36,11 +41,12 @@ public final class FaqCommandImpl implements FaqCommand {
 
         appUser.setUserState(QUESTION_SELECTION);
         appUserDAO.save(appUser);
-        return output.toString();
+        return new Answer(output.toString(), null);
     }
 
     @Override
-    public String questionSelectionProcess(final String cmd) {
+    public Answer questionSelectionProcess(final String cmd) {
+        String output = "";
         if (cmd.matches("[-+]?\\d+")) {
             final int selectedValue = Integer.parseInt(cmd);
             final Optional<Question> question = questionDAO.findNthSafely(selectedValue);
@@ -48,12 +54,15 @@ public final class FaqCommandImpl implements FaqCommand {
             if (question.isPresent()) {
                 final String questionText = question.get().getQuestion();
                 final String questionAnswer = question.get().getQuestionAnswer();
-                return questionText + "\n" + questionAnswer;
+                output += questionText + "\n" + questionAnswer;
             } else {
-                return "Такого значения нет в списке! Введите заново (Например: 1) или выйдите из режима выбора /cancel";
+                output += "Такого значения нет в списке! Введите заново (Например: 1) или выйдите из режима выбора " +
+                        "/cancel";
             }
         } else {
-            return "Вы ввели некорректное значение! Введите заново (Например: 1) или выйдите из режима выбора /cancel";
+            output += "Вы ввели некорректное значение! Введите заново (Например: 1) или выйдите из режима выбора /cancel";
         }
+
+        return new Answer(output, null);
     }
 }

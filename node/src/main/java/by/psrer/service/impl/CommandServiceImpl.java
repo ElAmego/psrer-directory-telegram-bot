@@ -7,6 +7,7 @@ import by.psrer.command.user.StartCommand;
 import by.psrer.entity.AppUser;
 import by.psrer.service.CommandService;
 import by.psrer.utils.MessageUtils;
+import by.psrer.utils.impl.Answer;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -40,12 +41,12 @@ public final class CommandServiceImpl implements CommandService {
     public void handleCommand(final Update update) {
         final AppUser appUser = messageUtils.findOrSaveAppUser(update);
 
-        final String output = processServiceCommand(appUser, update);
+        final Answer answer = processServiceCommand(appUser, update);
 
-        messageUtils.sendMessage(appUser, output);
+        messageUtils.sendMessage(appUser, answer);
     }
 
-    private String processServiceCommand(final AppUser appUser, final Update update) {
+    private Answer processServiceCommand(final AppUser appUser, final Update update) {
         final String cmd = update.getMessage().getText();
 
         if (appUser.getUserState() == QUESTION_SELECTION) {
@@ -66,8 +67,8 @@ public final class CommandServiceImpl implements CommandService {
             return faqCommand.handleCommandFaq(appUser);
         } else {
             messageUtils.deleteUserMessage(appUser, update);
-            return "Вы ввели неизвестную команду.\n" +
-                    "Список доступных команд: /help";
+            return new Answer("Вы ввели неизвестную команду.\nСписок доступных команд: /help",
+                    null);
         }
     }
 }
