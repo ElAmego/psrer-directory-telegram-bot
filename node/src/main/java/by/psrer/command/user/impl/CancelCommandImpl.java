@@ -3,6 +3,7 @@ package by.psrer.command.user.impl;
 import by.psrer.command.user.CancelCommand;
 import by.psrer.dao.AppUserDAO;
 import by.psrer.entity.AppUser;
+import by.psrer.utils.impl.Answer;
 import org.springframework.stereotype.Service;
 
 import static by.psrer.entity.enums.UserState.BASIC;
@@ -16,10 +17,10 @@ public final class CancelCommandImpl implements CancelCommand {
     }
 
     @Override
-    public String cancelSelection(final AppUser appUser) {
+    public Answer cancelSelection(final AppUser appUser) {
         appUser.setUserState(BASIC);
         appUserDAO.save(appUser);
 
-        return "Вы вышли из режима выбора.";
+        return new Answer("Вы вышли из режима выбора.", null);
     }
 }

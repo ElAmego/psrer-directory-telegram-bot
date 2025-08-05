@@ -32,12 +32,14 @@ public final class MessageUtilsImpl implements MessageUtils {
     }
 
     @Override
-    public void sendMessage(final AppUser appUser, final String output) {
+    public void sendMessage(final AppUser appUser, final Answer answer) {
         final Long chatId = appUser.getTelegramUserId();
-        final SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(output);
-        producerService.produceAnswer(sendMessage);
+        final SendMessage message = SendMessage.builder()
+                .chatId(chatId.toString())
+                .text(answer.getAnswerText())
+                    .build();
+
+        producerService.produceAnswer(message);
     }
 
     @Override

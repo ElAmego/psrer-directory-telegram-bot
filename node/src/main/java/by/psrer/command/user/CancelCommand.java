@@ -1,7 +1,8 @@
 package by.psrer.command.user;
 
 import by.psrer.entity.AppUser;
+import by.psrer.utils.impl.Answer;
 
 public interface CancelCommand {
-    String cancelSelection(final AppUser appUser);
+    Answer cancelSelection(final AppUser appUser);
 }
