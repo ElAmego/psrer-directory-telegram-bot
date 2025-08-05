@@ -16,12 +16,10 @@ import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 @Log4j
 public final class UpdateController {
     private TelegramBot telegramBot;
-    private final MessageUtils messageUtils;
     private final UpdateProducer updateProducer;
     private final CallbackProducer callbackProducer;
 
-    public UpdateController(final MessageUtils messageUtils, final UpdateProducer updateProducer, CallbackProducer callbackProducer) {
-        this.messageUtils = messageUtils;
+    public UpdateController(final UpdateProducer updateProducer, CallbackProducer callbackProducer) {
         this.updateProducer = updateProducer;
         this.callbackProducer = callbackProducer;
     }
@@ -64,7 +62,7 @@ public final class UpdateController {
     }
 
     private void setUnsupportedMessageTypeView(final Update update) {
-        SendMessage sendMessage = messageUtils.generateSendMessageWithText(update, "Неподдерживаемый тип сообщения");
+        SendMessage sendMessage = MessageUtils.generateSendMessageWithText(update, "Неподдерживаемый тип сообщения");
         setView(sendMessage);
     }
 

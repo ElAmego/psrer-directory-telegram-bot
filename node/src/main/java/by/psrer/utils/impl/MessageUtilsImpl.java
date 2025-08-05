@@ -1,0 +1,62 @@
+package by.psrer.utils.impl;
+
+import by.psrer.dao.AppUserDAO;
+import by.psrer.entity.AppUser;
+import by.psrer.service.ProducerService;
+import by.psrer.utils.MessageUtils;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+
+import static by.psrer.entity.enums.Role.USER;
+import static by.psrer.entity.enums.UserState.BASIC;
+
+@Service
+public final class MessageUtilsImpl implements MessageUtils {
+    private final ProducerService producerService;
+    private final AppUserDAO appUserDAO;
+
+    public MessageUtilsImpl(final ProducerService producerService, final AppUserDAO appUserDAO) {
+        this.producerService = producerService;
+        this.appUserDAO = appUserDAO;
+    }
+
+    @Override
+    public void deleteUserMessage(final AppUser appUser, final Update update) {
+        final DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(appUser.getTelegramUserId());
+        deleteMessage.setMessageId(update.getMessage().getMessageId());
+        producerService.produceDeleteMessage(deleteMessage);
+    }
+
+    @Override
+    public void sendMessage(final AppUser appUser, final String output) {
+        final Long chatId = appUser.getTelegramUserId();
+        final SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(output);
+        producerService.produceAnswer(sendMessage);
+    }
+
+    @Override
+    public AppUser findOrSaveAppUser(final Update update) {
+        final User telegramUser = update.getMessage().getFrom();
+
+        final AppUser persistanceAppUser = appUserDAO.findAppUserByTelegramUserId(telegramUser.getId());
+        if(persistanceAppUser == null) {
+            final AppUser transientAppUser = AppUser.builder()
+                    .telegramUserId(telegramUser.getId())
+                    .firstName(telegramUser.getFirstName())
+                    .lastName(telegramUser.getLastName())
+                    .userName(telegramUser.getUserName())
+                    .userState(BASIC)
+                    .role(USER)
+                    .build();
+
+            return appUserDAO.save(transientAppUser);
+        }
+        return persistanceAppUser;
+    }
+}
