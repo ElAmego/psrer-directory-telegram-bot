@@ -16,7 +16,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "question_id")
+@EqualsAndHashCode(exclude = "questionId")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

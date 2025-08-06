@@ -35,8 +35,8 @@ public final class FaqCommandImpl implements FaqCommand {
                 "введите команду /cancel. Введите в чат цифру интересующего вас вопроса (например: 1)\nСписок вопросов:");
         int inc = 0;
 
-        for (Question question: questionList) {
-            output.append("\n*").append(++inc).append(": ").append(question.getQuestion()).append("*");
+        for (final Question question: questionList) {
+            output.append("\n").append(++inc).append(": ").append(question.getQuestion());
         }
 
         appUser.setUserState(QUESTION_SELECTION);

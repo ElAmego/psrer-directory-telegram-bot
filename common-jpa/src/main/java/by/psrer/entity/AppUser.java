@@ -36,4 +36,5 @@ public class AppUser {
     private Long telegramUserId;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private Long intermediateValue;
 }
