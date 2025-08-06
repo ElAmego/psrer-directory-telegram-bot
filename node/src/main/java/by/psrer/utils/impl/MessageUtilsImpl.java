@@ -2,8 +2,10 @@ package by.psrer.utils.impl;
 
 import by.psrer.dao.AppUserDAO;
 import by.psrer.entity.AppUser;
+import by.psrer.entity.enums.UserState;
 import by.psrer.service.ProducerService;
 import by.psrer.utils.MessageUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -18,14 +20,12 @@ import static by.psrer.entity.enums.Role.USER;
 import static by.psrer.entity.enums.UserState.BASIC;
 
 @Service
+@RequiredArgsConstructor
+
+@SuppressWarnings("unused")
 public final class MessageUtilsImpl implements MessageUtils {
     private final ProducerService producerService;
     private final AppUserDAO appUserDAO;
-
-    public MessageUtilsImpl(final ProducerService producerService, final AppUserDAO appUserDAO) {
-        this.producerService = producerService;
-        this.appUserDAO = appUserDAO;
-    }
 
     @Override
     public void deleteUserMessage(final AppUser appUser, final Update update) {
@@ -71,5 +71,11 @@ public final class MessageUtilsImpl implements MessageUtils {
             return appUserDAO.save(transientAppUser);
         }
         return persistanceAppUser;
+    }
+
+    @Override
+    public void changeUserState(final AppUser appUser, final UserState userState) {
+        appUser.setUserState(userState);
+        appUserDAO.save(appUser);
     }
 }

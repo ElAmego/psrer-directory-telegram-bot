@@ -1,11 +1,12 @@
 package by.psrer.command.user.impl;
 
 import by.psrer.command.user.FaqCommand;
-import by.psrer.dao.AppUserDAO;
 import by.psrer.dao.QuestionDAO;
 import by.psrer.entity.AppUser;
 import by.psrer.entity.Question;
+import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +15,11 @@ import java.util.Optional;
 import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
 
 @Service
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
 public final class FaqCommandImpl implements FaqCommand {
-    private final AppUserDAO appUserDAO;
+    private final MessageUtils messageUtils;
     private final QuestionDAO questionDAO;
-
-    public FaqCommandImpl(final AppUserDAO appUserDAO, final QuestionDAO questionDAO) {
-        this.appUserDAO = appUserDAO;
-        this.questionDAO = questionDAO;
-    }
 
     @Override
     public Answer handleCommandFaq(final AppUser appUser) {
@@ -39,8 +37,7 @@ public final class FaqCommandImpl implements FaqCommand {
             output.append("\n").append(++inc).append(": ").append(question.getQuestion());
         }
 
-        appUser.setUserState(QUESTION_SELECTION);
-        appUserDAO.save(appUser);
+        messageUtils.changeUserState(appUser, QUESTION_SELECTION);
         return new Answer(output.toString(), null);
     }
 

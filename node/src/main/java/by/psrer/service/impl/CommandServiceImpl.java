@@ -11,6 +11,7 @@ import by.psrer.entity.AppUser;
 import by.psrer.service.CommandService;
 import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -27,6 +28,8 @@ import static by.psrer.service.enums.ServiceCommands.MODIFY_FAQ;
 import static by.psrer.service.enums.ServiceCommands.START;
 
 @Service
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
 @Log4j
 public final class CommandServiceImpl implements CommandService {
     private final MessageUtils messageUtils;
@@ -37,20 +40,6 @@ public final class CommandServiceImpl implements CommandService {
     private final ModifyFaqCommand modifyFaqCommand;
     private final AddFaqCallback addFaqCallback;
     private final DeleteFaqCallback deleteFaqCallback;
-
-    public CommandServiceImpl(final MessageUtils messageUtils, final StartCommand startCommand,
-                              final HelpCommand helpCommand, final FaqCommand faqCommand,
-                              final CancelCommand cancelCommand, final ModifyFaqCommand modifyFaqCommand,
-                              final AddFaqCallback addFaqCallback, DeleteFaqCallback deleteFaqCallback) {
-        this.messageUtils = messageUtils;
-        this.startCommand = startCommand;
-        this.helpCommand = helpCommand;
-        this.faqCommand = faqCommand;
-        this.cancelCommand = cancelCommand;
-        this.modifyFaqCommand = modifyFaqCommand;
-        this.addFaqCallback = addFaqCallback;
-        this.deleteFaqCallback = deleteFaqCallback;
-    }
 
     @Override
     public void handleCommand(final Update update) {

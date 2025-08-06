@@ -5,7 +5,9 @@ import by.psrer.dao.AppUserDAO;
 import by.psrer.dao.QuestionDAO;
 import by.psrer.entity.AppUser;
 import by.psrer.entity.Question;
+import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static by.psrer.entity.enums.UserState.BASIC;
@@ -13,21 +15,18 @@ import static by.psrer.entity.enums.UserState.QUESTION;
 import static by.psrer.entity.enums.UserState.QUESTION_ANSWER;
 
 @Service
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
 public final class AddFaqCallbackImpl implements AddFaqCallback {
+    private final MessageUtils messageUtils;
     private final AppUserDAO appUserDAO;
     private final QuestionDAO questionDAO;
-
-    public AddFaqCallbackImpl(final AppUserDAO appUserDAO, final QuestionDAO questionDAO) {
-        this.appUserDAO = appUserDAO;
-        this.questionDAO = questionDAO;
-    }
 
     @Override
     public Answer handleCallbackAddFaq(final Long chatId) {
         final String output = "Введите вопрос: ";
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
-        appUser.setUserState(QUESTION);
-        appUserDAO.save(appUser);
+        messageUtils.changeUserState(appUser, QUESTION);
         return new Answer(output, null);
     }
 
@@ -52,8 +51,7 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
         final String output = "Вопрос сохранен в базу данных.";
 
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
-        appUser.setUserState(BASIC);
-        appUserDAO.save(appUser);
+        messageUtils.changeUserState(appUser, BASIC);
 
         Long questionId = appUser.getIntermediateValue();
         Question question = questionDAO.findQuestionByQuestionId(questionId);
