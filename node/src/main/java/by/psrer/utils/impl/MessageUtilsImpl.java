@@ -9,6 +9,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.List;
 
 import static by.psrer.entity.enums.Role.USER;
 import static by.psrer.entity.enums.UserState.BASIC;
@@ -32,14 +36,21 @@ public final class MessageUtilsImpl implements MessageUtils {
     }
 
     @Override
-    public void sendMessage(final AppUser appUser, final Answer answer) {
-        final Long chatId = appUser.getTelegramUserId();
-        final SendMessage message = SendMessage.builder()
+    public void sendMessage(final Long chatId, final Answer answer) {
+        final List<InlineKeyboardButton> inlineKeyboardButtonList = answer.getInlineKeyboardButtonList();
+        final SendMessage sendMessage = SendMessage.builder()
                 .chatId(chatId.toString())
                 .text(answer.getAnswerText())
                     .build();
 
-        producerService.produceAnswer(message);
+        if (inlineKeyboardButtonList != null) {
+            sendMessage.setReplyMarkup(InlineKeyboardMarkup.builder()
+                    .keyboard(List.of(
+                            inlineKeyboardButtonList))
+                    .build());
+        }
+
+        producerService.produceAnswer(sendMessage);
     }
 
     @Override

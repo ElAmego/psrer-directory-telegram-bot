@@ -1,5 +1,8 @@
 package by.psrer.service.impl;
 
+import by.psrer.callback.AddFaqCallback;
+import by.psrer.callback.DeleteFaqCallback;
+import by.psrer.command.admin.ModifyFaqCommand;
 import by.psrer.command.user.CancelCommand;
 import by.psrer.command.user.FaqCommand;
 import by.psrer.command.user.HelpCommand;
@@ -12,10 +15,15 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static by.psrer.entity.enums.Role.ADMIN;
+import static by.psrer.entity.enums.UserState.DELETE_QUESTION;
+import static by.psrer.entity.enums.UserState.QUESTION;
+import static by.psrer.entity.enums.UserState.QUESTION_ANSWER;
 import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
 import static by.psrer.service.enums.ServiceCommands.CANCEL;
 import static by.psrer.service.enums.ServiceCommands.FAQ;
 import static by.psrer.service.enums.ServiceCommands.HELP;
+import static by.psrer.service.enums.ServiceCommands.MODIFY_FAQ;
 import static by.psrer.service.enums.ServiceCommands.START;
 
 @Service
@@ -26,15 +34,22 @@ public final class CommandServiceImpl implements CommandService {
     private final HelpCommand helpCommand;
     private final FaqCommand faqCommand;
     private final CancelCommand cancelCommand;
+    private final ModifyFaqCommand modifyFaqCommand;
+    private final AddFaqCallback addFaqCallback;
+    private final DeleteFaqCallback deleteFaqCallback;
 
     public CommandServiceImpl(final MessageUtils messageUtils, final StartCommand startCommand,
                               final HelpCommand helpCommand, final FaqCommand faqCommand,
-                              final CancelCommand cancelCommand) {
+                              final CancelCommand cancelCommand, final ModifyFaqCommand modifyFaqCommand,
+                              final AddFaqCallback addFaqCallback, DeleteFaqCallback deleteFaqCallback) {
         this.messageUtils = messageUtils;
         this.startCommand = startCommand;
         this.helpCommand = helpCommand;
         this.faqCommand = faqCommand;
         this.cancelCommand = cancelCommand;
+        this.modifyFaqCommand = modifyFaqCommand;
+        this.addFaqCallback = addFaqCallback;
+        this.deleteFaqCallback = deleteFaqCallback;
     }
 
     @Override
@@ -43,7 +58,7 @@ public final class CommandServiceImpl implements CommandService {
 
         final Answer answer = processServiceCommand(appUser, update);
 
-        messageUtils.sendMessage(appUser, answer);
+        messageUtils.sendMessage(appUser.getTelegramUserId(), answer);
     }
 
     private Answer processServiceCommand(final AppUser appUser, final Update update) {
@@ -57,6 +72,20 @@ public final class CommandServiceImpl implements CommandService {
             }
 
             return faqCommand.questionSelectionProcess(cmd);
+        } else if (appUser.getUserState() == QUESTION) {
+            messageUtils.deleteUserMessage(appUser, update);
+            return addFaqCallback.getUserQuestion(appUser.getTelegramUserId(), cmd);
+        } else if (appUser.getUserState() == QUESTION_ANSWER) {
+            messageUtils.deleteUserMessage(appUser, update);
+            return addFaqCallback.getUserQuestionAnswer(appUser.getTelegramUserId(), cmd);
+        } else if (appUser.getUserState() == DELETE_QUESTION) {
+            messageUtils.deleteUserMessage(appUser, update);
+
+            if (CANCEL.equals(cmd)) {
+                return cancelCommand.cancelSelection(appUser);
+            }
+
+            return deleteFaqCallback.deleteQuestion(appUser.getTelegramUserId(), cmd);
         }
 
         if (START.equals(cmd)) {
@@ -65,6 +94,8 @@ public final class CommandServiceImpl implements CommandService {
             return helpCommand.handleCommandHelp();
         } else if (FAQ.equals(cmd)) {
             return faqCommand.handleCommandFaq(appUser);
+        } else if (MODIFY_FAQ.equals(cmd) && appUser.getRole() == ADMIN) {
+            return modifyFaqCommand.handleCommandModifyFaq(appUser);
         } else {
             messageUtils.deleteUserMessage(appUser, update);
             return new Answer("Вы ввели неизвестную команду.\nСписок доступных команд: /help",

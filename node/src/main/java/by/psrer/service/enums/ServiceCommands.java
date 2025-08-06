@@ -4,7 +4,8 @@ public enum ServiceCommands {
     START("/start"),
     FAQ("/faq"),
     CANCEL("/cancel"),
-    HELP("/help");
+    HELP("/help"),
+    MODIFY_FAQ("/modify_faq");
 
     private final String cmd;
 
