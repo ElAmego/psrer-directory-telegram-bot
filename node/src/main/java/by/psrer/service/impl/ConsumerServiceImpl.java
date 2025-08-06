@@ -3,6 +3,7 @@ package by.psrer.service.impl;
 import by.psrer.service.CallbackService;
 import by.psrer.service.ConsumerService;
 import by.psrer.service.CommandService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -13,15 +14,12 @@ import static by.psrer.model.RabbitQueue.BUTTON_CALLBACK;
 import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 
 @Service
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
 @Log4j
 public final class ConsumerServiceImpl implements ConsumerService {
     private final CommandService commandService;
     private final CallbackService callbackService;
-
-    public ConsumerServiceImpl(final CommandService commandService, final CallbackService callbackService) {
-        this.commandService = commandService;
-        this.callbackService = callbackService;
-    }
 
     @Override
     @RabbitListener(queues = TEXT_MESSAGE_UPDATE)

@@ -5,6 +5,7 @@ import by.psrer.utils.impl.Answer;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings("unused")
 public final class StartCommandImpl implements StartCommand {
     @Override
     public Answer handleCommandStart() {

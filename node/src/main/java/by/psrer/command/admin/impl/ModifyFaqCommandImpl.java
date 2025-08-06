@@ -5,6 +5,7 @@ import by.psrer.dao.QuestionDAO;
 import by.psrer.entity.AppUser;
 import by.psrer.entity.Question;
 import by.psrer.utils.impl.Answer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -12,18 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
 public final class ModifyFaqCommandImpl implements ModifyFaqCommand {
     private final QuestionDAO questionDAO;
 
-    public ModifyFaqCommandImpl(final QuestionDAO questionDAO) {
-        this.questionDAO = questionDAO;
-    }
-
     @Override
-    public Answer handleCommandModifyFaq(AppUser appUser) {
+    public Answer handleCommandModifyFaq(final AppUser appUser) {
         final List<Question> questionList = questionDAO.findAll();
         final List<InlineKeyboardButton> inlineKeyboardButtonList = new ArrayList<>();
-        StringBuilder output = new StringBuilder();
+        final StringBuilder output = new StringBuilder();
 
         inlineKeyboardButtonList.add(InlineKeyboardButton.builder()
                         .text("Добавить вопрос")

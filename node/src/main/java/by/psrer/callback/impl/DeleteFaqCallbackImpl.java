@@ -7,28 +7,27 @@ import by.psrer.entity.AppUser;
 import by.psrer.entity.Question;
 import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 import static by.psrer.entity.enums.UserState.BASIC;
 import static by.psrer.entity.enums.UserState.DELETE_QUESTION;
-@Service
-public final class DeleteFaqCallbackImpl implements DeleteFaqCallback {
-    private final AppUserDAO appUserDAO;
-    private final QuestionDAO questionDAO;
 
-    public DeleteFaqCallbackImpl(final AppUserDAO appUserDAO, final QuestionDAO questionDAO) {
-        this.appUserDAO = appUserDAO;
-        this.questionDAO = questionDAO;
-    }
+@Service
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
+public final class DeleteFaqCallbackImpl implements DeleteFaqCallback {
+    private final MessageUtils messageUtils;
+    private final QuestionDAO questionDAO;
+    private final AppUserDAO appUserDAO;
 
     @Override
     public Answer handleCallbackDeleteFaq(final Long chatId) {
         final String output = "Введите номер вопроса, который вы хотите удалить (Например: 1):";
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
-        appUser.setUserState(DELETE_QUESTION);
-        appUserDAO.save(appUser);
+        messageUtils.changeUserState(appUser, DELETE_QUESTION);
         return new Answer(output, null);
     }
 
@@ -42,8 +41,7 @@ public final class DeleteFaqCallbackImpl implements DeleteFaqCallback {
 
             if (question.isPresent()) {
                 questionDAO.deleteQuestionByQuestionId(question.get().getQuestionId());
-                appUser.setUserState(BASIC);
-                appUserDAO.save(appUser);
+                messageUtils.changeUserState(appUser, BASIC);
                 output.append("Вопрос \"").append(question.get().getQuestion()).append("\" успешно удалён.");
             } else {
                 output.append("Такого вопроса нет в базе данных, введите корректное значение или выйдите из режима: " +
