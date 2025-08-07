@@ -4,8 +4,7 @@ public enum ServiceCommands {
     START("/start"),
     FAQ("/faq"),
     CANCEL("/cancel"),
-    HELP("/help"),
-    MODIFY_FAQ("/modify_faq");
+    HELP("/help");
 
     private final String cmd;
 
@@ -18,7 +17,7 @@ public enum ServiceCommands {
         return cmd;
     }
 
-    public Boolean equals(String cmd) {
+    public Boolean equals(final String cmd) {
         return this.toString().equals(cmd);
     }
 }
