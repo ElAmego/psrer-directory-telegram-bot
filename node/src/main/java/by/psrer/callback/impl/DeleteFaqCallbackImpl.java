@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static by.psrer.entity.enums.UserState.BASIC;
 import static by.psrer.entity.enums.UserState.DELETE_QUESTION;
+import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public final class DeleteFaqCallbackImpl implements DeleteFaqCallback {
 
             if (question.isPresent()) {
                 questionDAO.deleteQuestionByQuestionId(question.get().getQuestionId());
-                messageUtils.changeUserState(appUser, BASIC);
+                messageUtils.changeUserState(appUser, QUESTION_SELECTION);
                 output.append("Вопрос \"").append(question.get().getQuestion()).append("\" успешно удалён.");
             } else {
                 output.append("Такого вопроса нет в базе данных, введите корректное значение или выйдите из режима: " +

@@ -10,9 +10,9 @@ import by.psrer.utils.impl.Answer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static by.psrer.entity.enums.UserState.BASIC;
 import static by.psrer.entity.enums.UserState.QUESTION;
 import static by.psrer.entity.enums.UserState.QUESTION_ANSWER;
+import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
 
 @Service
 @RequiredArgsConstructor
@@ -48,10 +48,14 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
 
     @Override
     public Answer getUserQuestionAnswer(final Long chatId, final String questionAnswer) {
-        final String output = "Вопрос сохранен в базу данных.";
+        final String output = """
+                Вопрос сохранен в базу данных.
+                
+                Вы возвращены в режим выбора, введите номер вопроса \
+                (Например: 1) или выйдите из режима /cancel""";
 
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
-        messageUtils.changeUserState(appUser, BASIC);
+        messageUtils.changeUserState(appUser, QUESTION_SELECTION);
 
         Long questionId = appUser.getIntermediateValue();
         Question question = questionDAO.findQuestionByQuestionId(questionId);
