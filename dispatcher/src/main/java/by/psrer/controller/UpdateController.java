@@ -1,13 +1,19 @@
 package by.psrer.controller;
 
+import by.psrer.dto.ImageDTO;
 import by.psrer.service.CallbackProducer;
 import by.psrer.service.UpdateProducer;
 import by.psrer.utils.MessageUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import static by.psrer.model.RabbitQueue.BUTTON_CALLBACK;
 import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
@@ -72,5 +78,19 @@ public final class UpdateController {
 
     public void deleteTelegramMessage(final DeleteMessage deleteMessage) {
         telegramBot.deleteMessage(deleteMessage);
+    }
+
+    public void imageDTOHandler(final ImageDTO imageDTO) {
+        try (final InputStream is = new ByteArrayInputStream(imageDTO.getFileBytes())) {
+            final InputFile photo = new InputFile(is, imageDTO.getFileName());
+            final SendPhoto sendPhoto = SendPhoto.builder()
+                    .chatId(imageDTO.getChatId())
+                    .photo(photo)
+                    .build();
+
+            telegramBot.sendImage(sendPhoto);
+        } catch (Exception e) {
+            log.error(e);
+        }
     }
 }

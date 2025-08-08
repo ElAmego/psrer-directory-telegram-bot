@@ -1,5 +1,6 @@
 package by.psrer.service.impl;
 
+import by.psrer.dto.ImageDTO;
 import by.psrer.service.ProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 
 import static by.psrer.model.RabbitQueue.ANSWER_MESSAGE;
 import static by.psrer.model.RabbitQueue.DELETE_MESSAGE;
+import static by.psrer.model.RabbitQueue.IMAGES;
 
 @Service
 @RequiredArgsConstructor
@@ -24,5 +26,10 @@ public final class ProducerServiceImpl implements ProducerService {
     @Override
     public void produceDeleteMessage(final DeleteMessage deleteMessage) {
         rabbitTemplate.convertAndSend(DELETE_MESSAGE, deleteMessage);
+    }
+
+    @Override
+    public void produceImage(final ImageDTO imageDTO) {
+        rabbitTemplate.convertAndSend(IMAGES, imageDTO);
     }
 }
