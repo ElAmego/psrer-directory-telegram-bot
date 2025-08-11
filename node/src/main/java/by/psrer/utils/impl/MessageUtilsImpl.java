@@ -38,7 +38,7 @@ import static by.psrer.entity.enums.UserState.BASIC;
 public final class MessageUtilsImpl implements MessageUtils {
     private final ProducerService producerService;
     private final AppUserDAO appUserDAO;
-    private final static Integer TELEGRAM_MESSAGE_LIMIT = 4000;
+    private final static Integer TELEGRAM_MESSAGE_LIMIT = 2500;
 
     @Override
     public void deleteUserMessage(final AppUser appUser, final Update update) {
@@ -55,22 +55,22 @@ public final class MessageUtilsImpl implements MessageUtils {
             for (final Answer answerFromList: answers) {
                 sendMessage(chatId, answerFromList);
             }
-        }
-
-        final List<InlineKeyboardButton> inlineKeyboardButtonList = answer.getInlineKeyboardButtonList();
-        final SendMessage sendMessage = SendMessage.builder()
-                .chatId(chatId.toString())
-                .text(answer.getAnswerText())
+        } else {
+            final List<InlineKeyboardButton> inlineKeyboardButtonList = answer.getInlineKeyboardButtonList();
+            final SendMessage sendMessage = SendMessage.builder()
+                    .chatId(chatId.toString())
+                    .text(answer.getAnswerText())
                     .build();
 
-        if (inlineKeyboardButtonList != null) {
-            sendMessage.setReplyMarkup(InlineKeyboardMarkup.builder()
-                    .keyboard(List.of(
-                            inlineKeyboardButtonList))
-                    .build());
-        }
+            if (inlineKeyboardButtonList != null) {
+                sendMessage.setReplyMarkup(InlineKeyboardMarkup.builder()
+                        .keyboard(List.of(
+                                inlineKeyboardButtonList))
+                        .build());
+            }
 
-        producerService.produceAnswer(sendMessage);
+            producerService.produceAnswer(sendMessage);
+        }
     }
 
     private List<Answer> splitAnswer(Answer answer) {
