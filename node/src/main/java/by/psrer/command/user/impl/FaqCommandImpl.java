@@ -33,7 +33,7 @@ public final class FaqCommandImpl implements FaqCommand {
             output.append("Список вопросов пуст.");
         } else {
             output.append("""
-                    Вы переключились в режим выбора вопросов, для выхода из режима введите команду /cancel. \
+                    Вы переключились в режим выбора, для выхода из режима введите команду /cancel. \
                     Введите в чат цифру интересующего вас вопроса (например: 1)
                     
                     Список вопросов:""");
@@ -73,7 +73,7 @@ public final class FaqCommandImpl implements FaqCommand {
 
     @Override
     public Answer questionSelectionProcess(final String cmd) {
-        String output = "";
+        final StringBuilder output = new StringBuilder();
         if (cmd.matches("[-+]?\\d+")) {
             final int selectedValue = Integer.parseInt(cmd);
             final Optional<Question> question = questionDAO.findNthSafely(selectedValue);
@@ -81,15 +81,17 @@ public final class FaqCommandImpl implements FaqCommand {
             if (question.isPresent()) {
                 final String questionText = question.get().getQuestion();
                 final String questionAnswer = question.get().getQuestionAnswer();
-                output += questionText + "\n" + questionAnswer;
+                output.append(questionText).append("\n").append(questionAnswer).append("\n\n")
+                        .append("Вы можете ввести другой номер или выйти из режима выбора – /cancel");
             } else {
-                output += "Такого значения нет в списке! Введите заново (Например: 1) или выйдите из режима выбора " +
-                        "/cancel";
+                output.append("Такого значения нет в списке! Введите заново (Например: 1) или выйдите из режима выбора " +
+                        "/cancel");
             }
         } else {
-            output += "Вы ввели некорректное значение! Введите заново (Например: 1) или выйдите из режима выбора /cancel";
+            output.append("Вы ввели некорректное значение! Введите заново (Например: 1) или выйдите из режима выбора " +
+                    "/cancel");
         }
 
-        return new Answer(output, null);
+        return new Answer(output.toString(), null);
     }
 }

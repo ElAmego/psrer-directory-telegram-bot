@@ -3,6 +3,7 @@ package by.psrer.service.enums;
 public enum ServiceCommands {
     START("/start"),
     FAQ("/faq"),
+    ROUTES("/routes"),
     CANCEL("/cancel"),
     HELP("/help");
 

@@ -1,11 +1,13 @@
 package by.psrer.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +18,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "route_id")
+@EqualsAndHashCode(exclude = "routeId")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,6 +28,10 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long routeId;
+    private String routeName;
+    @Column(length = 10485760)
     private String routeDescription;
-    private String isActivity;
+    @OneToOne
+    @JoinColumn(name = "routeImageId", referencedColumnName = "routeImageId")
+    private RouteImage routeImageId;
 }

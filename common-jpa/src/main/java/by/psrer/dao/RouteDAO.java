@@ -1,30 +1,23 @@
 package by.psrer.dao;
 
 import by.psrer.entity.Question;
-import jakarta.transaction.Transactional;
+import by.psrer.entity.Route;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface QuestionDAO extends JpaRepository<Question, Integer> {
-    List<Question> findAll();
+public interface RouteDAO extends JpaRepository<Route, Long> {
+    List<Route> findAll();
+    Route findRouteByRouteId(final Long routeId);
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Question q WHERE q.questionId = :questionId")
-    void deleteQuestionByQuestionId(@Param("questionId") final Long questionId);
-
-    Question findQuestionByQuestionId(final Long questionId);
-
-    @Query(value = "SELECT * FROM question ORDER BY question_id LIMIT 1 OFFSET :offset", nativeQuery = true)
-    Question findNth(@Param("offset") final int offset);
+    @Query(value = "SELECT * FROM route ORDER BY route_id LIMIT 1 OFFSET :offset", nativeQuery = true)
+    Route findNth(@Param("offset") final int offset);
 
     // Доп. метод для безопасного получения (возвращает Optional)
-    default Optional<Question> findNthSafely(final int n) {
+    default Optional<Route> findNthSafely(final int n) {
         if (n <= 0) {
             return Optional.empty();
         }

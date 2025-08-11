@@ -14,16 +14,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "questionId")
+@EqualsAndHashCode(exclude = "routeImageId")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "question")
-public class Question {
+@Table(name = "route_image")
+public class RouteImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long questionId;
-    private String question;
-    private String questionAnswer;
+    private Long routeImageId;
+    private String routeImageUrl;
+    private String routeImageFileName;
 }

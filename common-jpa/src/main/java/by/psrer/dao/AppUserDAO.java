@@ -4,5 +4,5 @@ import by.psrer.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AppUserDAO extends JpaRepository<AppUser, Long> {
-    AppUser findAppUserByTelegramUserId(Long userId);
+    AppUser findAppUserByTelegramUserId(final Long userId);
 }
