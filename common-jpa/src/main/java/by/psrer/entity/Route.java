@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -29,8 +28,7 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long routeId;
     private String routeName;
-    @Column(length = 10485760)
-    private String routeDescription;
+    private String routeDescriptionUrl;
     @OneToOne
     @JoinColumn(name = "routeImageId", referencedColumnName = "routeImageId")
     private RouteImage routeImageId;

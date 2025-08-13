@@ -3,22 +3,24 @@ package by.psrer.command.user.impl;
 import by.psrer.command.user.RoutesCommand;
 import by.psrer.dao.RouteDAO;
 import by.psrer.entity.AppUser;
-import by.psrer.entity.Question;
 import by.psrer.entity.Route;
 import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static by.psrer.entity.enums.Role.ADMIN;
 import static by.psrer.entity.enums.UserState.ROUTE_SELECTION;
 
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
-public class RoutesCommandImpl implements RoutesCommand {
+public final class RoutesCommandImpl implements RoutesCommand {
     private final MessageUtils messageUtils;
     private final RouteDAO routeDAO;
 
@@ -45,7 +47,28 @@ public class RoutesCommandImpl implements RoutesCommand {
             messageUtils.changeUserState(appUser, ROUTE_SELECTION);
         }
 
-        return new Answer(output.toString(), null);
+        List<InlineKeyboardButton> inlineKeyboardButtonList = appUser.getRole() == ADMIN
+                ? createRoutesButtons(routeList.isEmpty())
+                : null;
+
+        return new Answer(output.toString(), inlineKeyboardButtonList);
+    }
+
+    private List<InlineKeyboardButton> createRoutesButtons(final boolean isEmptyList) {
+        final List<InlineKeyboardButton> inlineKeyboardButtonList = new ArrayList<>();
+        inlineKeyboardButtonList.add(InlineKeyboardButton.builder()
+                .text("Добавить маршрут")
+                .callbackData("addRoute")
+                .build());
+
+        if (!isEmptyList) {
+            inlineKeyboardButtonList.add(InlineKeyboardButton.builder()
+                    .text("Удалить маршрут")
+                    .callbackData("deleteRoute")
+                    .build());
+        }
+
+        return inlineKeyboardButtonList;
     }
 
     @Override
@@ -57,10 +80,17 @@ public class RoutesCommandImpl implements RoutesCommand {
 
             if (optionalRoute.isPresent()) {
                 final Route route = optionalRoute.get();
-                final String routeDescription = route.getRouteDescription();
+                final String routeDescriptionUrl = route.getRouteDescriptionUrl();
+                final String fileId = messageUtils.extractMessageIdFromUrl(routeDescriptionUrl);
+                final String routeDescription = messageUtils.getTextFromTxtFile(fileId);
 
-                output.append(routeDescription).append("\n\n")
-                        .append("Вы можете ввести другой номер или выйти из режима выбора – /cancel");
+                if (routeDescription == null || routeDescription.isEmpty()) {
+                    output.append("При получении описания маршрута возникла ошибка.");
+                } else {
+                    output.append(routeDescription);
+                }
+
+                output.append("\n\n").append("Вы можете ввести другой номер или выйти из режима выбора – /cancel");
 
                 messageUtils.sendImage(telegramUserId, route.getRouteImageId());
             } else {
