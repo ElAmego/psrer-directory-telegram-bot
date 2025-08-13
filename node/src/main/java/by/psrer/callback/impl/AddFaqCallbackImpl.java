@@ -34,14 +34,13 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
     public Answer getUserQuestion(final Long chatId, final String question) {
         final String output = "Введите ответ на вопрос: ";
 
-        Question newQuestion = new Question();
-        newQuestion.setQuestion(question);
+        Question newQuestion = Question.builder()
+                .question(question)
+                .build();
         newQuestion = questionDAO.save(newQuestion);
 
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
-        appUser.setUserState(QUESTION_ANSWER);
-        appUser.setIntermediateValue(newQuestion.getQuestionId());
-        appUserDAO.save(appUser);
+        messageUtils.changeUserStateWithIntermediateValue(appUser, QUESTION_ANSWER, newQuestion.getQuestionId());
 
         return new Answer(output, null);
     }
@@ -57,8 +56,8 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
         messageUtils.changeUserState(appUser, QUESTION_SELECTION);
 
-        Long questionId = appUser.getIntermediateValue();
-        Question question = questionDAO.findQuestionByQuestionId(questionId);
+        final Long questionId = appUser.getIntermediateValue();
+        final Question question = questionDAO.findQuestionByQuestionId(questionId);
         question.setQuestionAnswer(questionAnswer);
         questionDAO.save(question);
 
