@@ -2,7 +2,9 @@ package by.psrer.dao;
 
 import by.psrer.entity.Question;
 import by.psrer.entity.Route;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,4 +29,9 @@ public interface RouteDAO extends JpaRepository<Route, Long> {
             return Optional.empty(); // если запись не найдена или ошибка БД
         }
     }
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Route r WHERE r.routeId = :routeId")
+    void deleteRouteByRouteId(@Param("routeId") final Long routeId);
 }

@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -33,7 +34,6 @@ import static by.psrer.entity.enums.UserState.BASIC;
 @Log4j
 @Service
 @RequiredArgsConstructor
-
 @SuppressWarnings("unused")
 public final class MessageUtilsImpl implements MessageUtils {
     private final ProducerService producerService;
@@ -130,7 +130,58 @@ public final class MessageUtilsImpl implements MessageUtils {
         return bytes;
     }
 
-    private String extractMessageIdFromUrl(final String url) {
+    public String getTextFromTxtFile(final String fileId) {
+        String text = null;
+        final String downloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+
+        try {
+            final HttpClient httpClient = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .cookieHandler(new CookieManager())
+                    .build();
+
+            final HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(downloadUrl))
+                    .header("User-Agent", "Mozilla/5.0")
+                    .build();
+
+            final HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            text = httpResponse.body();
+
+            if (text.contains("Google Drive - Virus scan warning")) {
+                final String confirmUrl = extractConfirmUrl(text);
+                if (confirmUrl != null) {
+                    final HttpRequest confirmRequest = HttpRequest.newBuilder()
+                            .uri(URI.create(confirmUrl))
+                            .header("User-Agent", "Mozilla/5.0")
+                            .build();
+                    final HttpResponse<String> confirmResponse = httpClient.send(confirmRequest,
+                            HttpResponse.BodyHandlers.ofString());
+                    text = confirmResponse.body();
+                }
+            }
+
+            if (text.contains("Error 404 (Not Found)")) {
+                text = "При получении описания маршрута возникла ошибка.";
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to download text file: " + e.getMessage());
+        }
+
+        return text;
+    }
+
+    private String extractConfirmUrl(final String html) {
+        final Pattern pattern = Pattern.compile("action=\"([^\"]+confirm=[^\"]+)\"");
+        final Matcher matcher = pattern.matcher(html);
+        if (matcher.find()) {
+            return "https://drive.google.com" + matcher.group(1).replace("&amp;", "&");
+        }
+        return null;
+    }
+
+    public String extractMessageIdFromUrl(final String url) {
         final Pattern pattern = Pattern.compile("(?:/d/|id=|/open\\?id=)([a-zA-Z0-9_-]+)");
         final Matcher matcher = pattern.matcher(url);
         String link = null;
@@ -144,6 +195,14 @@ public final class MessageUtilsImpl implements MessageUtils {
     @Override
     public void changeUserState(final AppUser appUser, final UserState userState) {
         appUser.setUserState(userState);
+        appUserDAO.save(appUser);
+    }
+
+    @Override
+    public void changeUserStateWithIntermediateValue(final AppUser appUser, final UserState userState,
+                                                     final Long intermediateValue) {
+        appUser.setUserState(userState);
+        appUser.setIntermediateValue(intermediateValue);
         appUserDAO.save(appUser);
     }
 

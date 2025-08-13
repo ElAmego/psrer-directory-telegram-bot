@@ -11,5 +11,9 @@ public interface MessageUtils {
     void sendMessage(final Long chatId, final Answer answer);
     AppUser findOrSaveAppUser(final Update update);
     void changeUserState(final AppUser appUser, final UserState userState);
+    void changeUserStateWithIntermediateValue(final AppUser appUser, final UserState userState,
+                                              final Long intermediateValue);
+    String extractMessageIdFromUrl(final String url);
+    String getTextFromTxtFile(final String fileId);
     void sendImage(final Long telegramUserId, final RouteImage routeImageId);
 }

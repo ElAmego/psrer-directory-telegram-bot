@@ -55,7 +55,7 @@ public final class FaqCommandImpl implements FaqCommand {
     }
 
     private List<InlineKeyboardButton> createFaqButtons(final boolean isEmptyList) {
-        List<InlineKeyboardButton> inlineKeyboardButtonList = new ArrayList<>();
+        final List<InlineKeyboardButton> inlineKeyboardButtonList = new ArrayList<>();
         inlineKeyboardButtonList.add(InlineKeyboardButton.builder()
                 .text("Добавить вопрос")
                 .callbackData("addFaq")
