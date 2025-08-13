@@ -12,7 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-
 public final class Answer {
     private final String answerText;
     private final List<InlineKeyboardButton> inlineKeyboardButtonList;

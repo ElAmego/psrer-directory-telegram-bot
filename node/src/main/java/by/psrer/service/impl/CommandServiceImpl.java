@@ -10,34 +10,25 @@ import by.psrer.command.user.HelpCommand;
 import by.psrer.command.user.RoutesCommand;
 import by.psrer.command.user.StartCommand;
 import by.psrer.entity.AppUser;
+import by.psrer.entity.enums.UserState;
 import by.psrer.service.CommandService;
+import by.psrer.service.enums.Command;
 import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static by.psrer.entity.enums.UserState.BASIC;
 import static by.psrer.entity.enums.UserState.DELETE_QUESTION;
 import static by.psrer.entity.enums.UserState.DELETE_ROUTE;
-import static by.psrer.entity.enums.UserState.QUESTION;
-import static by.psrer.entity.enums.UserState.QUESTION_ANSWER;
 import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
-import static by.psrer.entity.enums.UserState.ROUTE;
-import static by.psrer.entity.enums.UserState.ROUTE_DESCRIPTION;
-import static by.psrer.entity.enums.UserState.ROUTE_IMAGE_NAME;
-import static by.psrer.entity.enums.UserState.ROUTE_IMAGE_URL;
 import static by.psrer.entity.enums.UserState.ROUTE_SELECTION;
-import static by.psrer.service.enums.ServiceCommands.CANCEL;
-import static by.psrer.service.enums.ServiceCommands.FAQ;
-import static by.psrer.service.enums.ServiceCommands.HELP;
-import static by.psrer.service.enums.ServiceCommands.ROUTES;
-import static by.psrer.service.enums.ServiceCommands.START;
+import static by.psrer.service.enums.Command.CANCEL;
 
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
-@Log4j
 public final class CommandServiceImpl implements CommandService {
     private final MessageUtils messageUtils;
     private final StartCommand startCommand;
@@ -60,72 +51,47 @@ public final class CommandServiceImpl implements CommandService {
     }
 
     private Answer processServiceCommand(final AppUser appUser, final Update update) {
-        final String cmd = update.getMessage().getText();
+        final String text = update.getMessage().getText();
+        final Command command = Command.fromString(text);
+        final UserState userState = appUser.getUserState();
 
-        if (appUser.getUserState() == QUESTION_SELECTION) {
-            messageUtils.deleteUserMessage(appUser, update);
-
-            if (CANCEL.equals(cmd)) {
-                return cancelCommand.cancelSelection(appUser);
-            }
-
-            return faqCommand.questionSelectionProcess(cmd);
-        } else if (appUser.getUserState() == QUESTION) {
-            messageUtils.deleteUserMessage(appUser, update);
-            return addFaqCallback.getUserQuestion(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == QUESTION_ANSWER) {
-            messageUtils.deleteUserMessage(appUser, update);
-            return addFaqCallback.getUserQuestionAnswer(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == DELETE_QUESTION) {
+        if ((userState == QUESTION_SELECTION || userState == DELETE_QUESTION || userState == ROUTE_SELECTION ||
+                userState == DELETE_ROUTE) && command == CANCEL) {
             messageUtils.deleteUserMessage(appUser, update);
 
-            if (CANCEL.equals(cmd)) {
-                return cancelCommand.cancelSelection(appUser);
-            }
-
-            return deleteFaqCallback.deleteQuestion(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == ROUTE_SELECTION) {
-            messageUtils.deleteUserMessage(appUser, update);
-
-            if (CANCEL.equals(cmd)) {
-                return cancelCommand.cancelSelection(appUser);
-            }
-
-            return routesCommand.getRoute(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == ROUTE) {
-            messageUtils.deleteUserMessage(appUser, update);
-            return addRouteCallback.getUserRouteName(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == ROUTE_DESCRIPTION) {
-            messageUtils.deleteUserMessage(appUser, update);
-            return addRouteCallback.getUserRouteDescription(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == ROUTE_IMAGE_NAME) {
-            messageUtils.deleteUserMessage(appUser, update);
-            return addRouteCallback.getUserRouteImageName(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == ROUTE_IMAGE_URL) {
-            messageUtils.deleteUserMessage(appUser, update);
-            return addRouteCallback.getUserRouteImageUrl(appUser.getTelegramUserId(), cmd);
-        } else if (appUser.getUserState() == DELETE_ROUTE) {
-            messageUtils.deleteUserMessage(appUser, update);
-
-            if (CANCEL.equals(cmd)) {
-                return cancelCommand.cancelSelection(appUser);
-            }
-
-            return deleteRouteCallback.deleteRoute(appUser.getTelegramUserId(), cmd);
+            return cancelCommand.cancelSelection(appUser);
         }
 
-        if (START.equals(cmd)) {
-            return startCommand.handleCommandStart();
-        } else if (HELP.equals(cmd)) {
-            return helpCommand.handleCommandHelp();
-        } else if (FAQ.equals(cmd)) {
-            return faqCommand.handleCommandFaq(appUser);
-        } else if (ROUTES.equals(cmd)) {
-            return routesCommand.handleCommandRoutes(appUser);
-        } else {
+        if (userState != BASIC) {
+            messageUtils.deleteUserMessage(appUser, update);
+
+            return switch (userState) {
+                case ROUTE_SELECTION -> routesCommand.getRoute(appUser.getTelegramUserId(), text);
+                case QUESTION_SELECTION -> faqCommand.questionSelectionProcess(text);
+                case QUESTION -> addFaqCallback.getUserQuestion(appUser.getTelegramUserId(), text);
+                case QUESTION_ANSWER -> addFaqCallback.getUserQuestionAnswer(appUser.getTelegramUserId(), text);
+                case DELETE_QUESTION -> deleteFaqCallback.deleteQuestion(appUser.getTelegramUserId(), text);
+                case ROUTE -> addRouteCallback.getUserRouteName(appUser.getTelegramUserId(), text);
+                case ROUTE_DESCRIPTION -> addRouteCallback.getUserRouteDescription(appUser.getTelegramUserId(), text);
+                case ROUTE_IMAGE_NAME -> addRouteCallback.getUserRouteImageName(appUser.getTelegramUserId(), text);
+                case ROUTE_IMAGE_URL -> addRouteCallback.getUserRouteImageUrl(appUser.getTelegramUserId(), text);
+                case DELETE_ROUTE -> deleteRouteCallback.deleteRoute(appUser.getTelegramUserId(), text);
+                default -> new Answer("Недоступно", null);
+            };
+        }
+
+        if (command == null) {
             messageUtils.deleteUserMessage(appUser, update);
             return new Answer("Вы ввели неизвестную команду.\nСписок доступных команд: /help",
                     null);
         }
+
+        return switch (command) {
+            case START -> startCommand.handleCommandStart();
+            case HELP -> helpCommand.handleCommandHelp();
+            case FAQ -> faqCommand.handleCommandFaq(appUser);
+            case ROUTES -> routesCommand.handleCommandRoutes(appUser);
+            default -> new Answer("Недоступно", null);
+        };
     }
 }

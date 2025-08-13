@@ -47,7 +47,7 @@ public final class RoutesCommandImpl implements RoutesCommand {
             messageUtils.changeUserState(appUser, ROUTE_SELECTION);
         }
 
-        List<InlineKeyboardButton> inlineKeyboardButtonList = appUser.getRole() == ADMIN
+        final List<InlineKeyboardButton> inlineKeyboardButtonList = appUser.getRole() == ADMIN
                 ? createRoutesButtons(routeList.isEmpty())
                 : null;
 

@@ -47,7 +47,7 @@ public final class FaqCommandImpl implements FaqCommand {
             messageUtils.changeUserState(appUser, QUESTION_SELECTION);
         }
 
-        List<InlineKeyboardButton> inlineKeyboardButtonList = appUser.getRole() == ADMIN
+        final List<InlineKeyboardButton> inlineKeyboardButtonList = appUser.getRole() == ADMIN
                 ? createFaqButtons(questionList.isEmpty())
                 : null;
 

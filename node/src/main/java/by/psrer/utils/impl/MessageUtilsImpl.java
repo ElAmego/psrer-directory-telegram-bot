@@ -50,27 +50,31 @@ public final class MessageUtilsImpl implements MessageUtils {
 
     @Override
     public void sendMessage(final Long chatId, final Answer answer) {
-        if (answer.getAnswerText().length() > TELEGRAM_MESSAGE_LIMIT) {
+        final int sendMessageLength = answer.getAnswerText().length();
+
+        if (sendMessageLength > TELEGRAM_MESSAGE_LIMIT) {
             final List<Answer> answers = splitAnswer(answer);
-            for (final Answer answerFromList: answers) {
+            for (final Answer answerFromList : answers) {
                 sendMessage(chatId, answerFromList);
             }
-        } else {
-            final List<InlineKeyboardButton> inlineKeyboardButtonList = answer.getInlineKeyboardButtonList();
-            final SendMessage sendMessage = SendMessage.builder()
-                    .chatId(chatId.toString())
-                    .text(answer.getAnswerText())
-                    .build();
 
-            if (inlineKeyboardButtonList != null) {
-                sendMessage.setReplyMarkup(InlineKeyboardMarkup.builder()
-                        .keyboard(List.of(
-                                inlineKeyboardButtonList))
-                        .build());
-            }
-
-            producerService.produceAnswer(sendMessage);
+            return;
         }
+
+        final List<InlineKeyboardButton> inlineKeyboardButtonList = answer.getInlineKeyboardButtonList();
+        final SendMessage sendMessage = SendMessage.builder()
+                .chatId(chatId.toString())
+                .text(answer.getAnswerText())
+                .build();
+
+        if (inlineKeyboardButtonList != null) {
+            sendMessage.setReplyMarkup(InlineKeyboardMarkup.builder()
+                    .keyboard(List.of(
+                            inlineKeyboardButtonList))
+                    .build());
+        }
+
+        producerService.produceAnswer(sendMessage);
     }
 
     private List<Answer> splitAnswer(Answer answer) {
@@ -97,7 +101,7 @@ public final class MessageUtilsImpl implements MessageUtils {
         final User telegramUser = update.getMessage().getFrom();
 
         final AppUser persistanceAppUser = appUserDAO.findAppUserByTelegramUserId(telegramUser.getId());
-        if(persistanceAppUser == null) {
+        if (persistanceAppUser == null) {
             final AppUser transientAppUser = AppUser.builder()
                     .telegramUserId(telegramUser.getId())
                     .firstName(telegramUser.getFirstName())
@@ -121,7 +125,8 @@ public final class MessageUtilsImpl implements MessageUtils {
                     .uri(URI.create(url))
                     .build();
 
-            HttpResponse<byte[]> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
+            final HttpResponse<byte[]> httpResponse = httpClient.send(httpRequest,
+                    HttpResponse.BodyHandlers.ofByteArray());
             bytes = httpResponse.body();
         } catch (InterruptedException | IOException e) {
             log.error(e);
