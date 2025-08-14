@@ -27,6 +27,7 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long routeId;
+    @Column(length = 1000)
     private String routeName;
     private String routeDescriptionUrl;
     @OneToOne
