@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 @Service
+@SuppressWarnings("unused")
 @Log4j
 public final class CallbackProducerImpl implements CallbackProducer {
     private final RabbitTemplate rabbitTemplate;

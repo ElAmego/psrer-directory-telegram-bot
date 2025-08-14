@@ -13,6 +13,7 @@ import static by.psrer.model.RabbitQueue.DELETE_MESSAGE;
 import static by.psrer.model.RabbitQueue.IMAGES;
 
 @Service
+@SuppressWarnings("unused")
 public final class AnswerConsumerImpl implements AnswerConsumer {
     private final UpdateController updateController;
 

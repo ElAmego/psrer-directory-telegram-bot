@@ -13,6 +13,7 @@ import static by.psrer.model.RabbitQueue.IMAGES;
 import static by.psrer.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 
 @Configuration
+@SuppressWarnings("unused")
 public class RabbitConfiguration {
     @Bean
     public MessageConverter jsonMessageConverter() {
