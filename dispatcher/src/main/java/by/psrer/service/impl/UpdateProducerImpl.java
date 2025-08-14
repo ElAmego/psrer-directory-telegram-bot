@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Service
+@SuppressWarnings("unused")
 @Log4j
 public final class UpdateProducerImpl implements UpdateProducer {
     private final RabbitTemplate rabbitTemplate;

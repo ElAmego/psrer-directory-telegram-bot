@@ -15,9 +15,11 @@ public final class StartCommandImpl implements StartCommand {
                 Тут вы найдёте ответы на часто задаваемые вопросы, список доступных на данный момент маршрутов и их описание.
                 
                 Как с нами связаться?
-                \uD83D\uDCDE+375(29)1111111 (Доступен также в WhatsApp, Telegram, Viber)
-                ☎️+8(029)4033333
-                
+                \uD83D\uDCDE+375(33)3159003 (Доступен также в WhatsApp, Telegram, Viber)
+                ☎️+375(2346)44687
+                Instagram: polesskiy_tour
+                Электронная почта: travel@zapovednik.by
+               
                 Список доступных команд: /help""", null);
     }
 }

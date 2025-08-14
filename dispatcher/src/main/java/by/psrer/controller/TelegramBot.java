@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
+@SuppressWarnings("unused")
 @Log4j
 public final class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
