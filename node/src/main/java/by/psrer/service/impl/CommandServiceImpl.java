@@ -7,6 +7,7 @@ import by.psrer.callback.DeleteRouteCallback;
 import by.psrer.command.user.CancelCommand;
 import by.psrer.command.user.FaqCommand;
 import by.psrer.command.user.HelpCommand;
+import by.psrer.command.user.IdCommand;
 import by.psrer.command.user.RoutesCommand;
 import by.psrer.command.user.StartCommand;
 import by.psrer.entity.AppUser;
@@ -32,6 +33,7 @@ import static by.psrer.service.enums.Command.CANCEL;
 public final class CommandServiceImpl implements CommandService {
     private final MessageUtils messageUtils;
     private final StartCommand startCommand;
+    private final IdCommand idCommand;
     private final HelpCommand helpCommand;
     private final FaqCommand faqCommand;
     private final CancelCommand cancelCommand;
@@ -65,17 +67,19 @@ public final class CommandServiceImpl implements CommandService {
         if (userState != BASIC) {
             messageUtils.deleteUserMessage(appUser, update);
 
+            final Long telegramUserId = appUser.getTelegramUserId();
+
             return switch (userState) {
-                case ROUTE_SELECTION -> routesCommand.getRoute(appUser.getTelegramUserId(), text);
+                case ROUTE_SELECTION -> routesCommand.getRoute(telegramUserId, text);
                 case QUESTION_SELECTION -> faqCommand.questionSelectionProcess(text);
-                case QUESTION -> addFaqCallback.getUserQuestion(appUser.getTelegramUserId(), text);
-                case QUESTION_ANSWER -> addFaqCallback.getUserQuestionAnswer(appUser.getTelegramUserId(), text);
-                case DELETE_QUESTION -> deleteFaqCallback.deleteQuestion(appUser.getTelegramUserId(), text);
-                case ROUTE -> addRouteCallback.getUserRouteName(appUser.getTelegramUserId(), text);
-                case ROUTE_DESCRIPTION -> addRouteCallback.getUserRouteDescription(appUser.getTelegramUserId(), text);
-                case ROUTE_IMAGE_NAME -> addRouteCallback.getUserRouteImageName(appUser.getTelegramUserId(), text);
-                case ROUTE_IMAGE_URL -> addRouteCallback.getUserRouteImageUrl(appUser.getTelegramUserId(), text);
-                case DELETE_ROUTE -> deleteRouteCallback.deleteRoute(appUser.getTelegramUserId(), text);
+                case QUESTION -> addFaqCallback.getUserQuestion(telegramUserId, text);
+                case QUESTION_ANSWER -> addFaqCallback.getUserQuestionAnswer(telegramUserId, text);
+                case DELETE_QUESTION -> deleteFaqCallback.deleteQuestion(telegramUserId, text);
+                case ROUTE -> addRouteCallback.getUserRouteName(telegramUserId, text);
+                case ROUTE_DESCRIPTION -> addRouteCallback.getUserRouteDescription(telegramUserId, text);
+                case ROUTE_IMAGE_NAME -> addRouteCallback.getUserRouteImageName(telegramUserId, text);
+                case ROUTE_IMAGE_URL -> addRouteCallback.getUserRouteImageUrl(telegramUserId, text);
+                case DELETE_ROUTE -> deleteRouteCallback.deleteRoute(telegramUserId, text);
                 default -> new Answer("Недоступно", null);
             };
         }
@@ -88,6 +92,7 @@ public final class CommandServiceImpl implements CommandService {
 
         return switch (command) {
             case START -> startCommand.handleCommandStart();
+            case ID -> idCommand.handleCommandId(appUser);
             case HELP -> helpCommand.handleCommandHelp();
             case FAQ -> faqCommand.handleCommandFaq(appUser);
             case ROUTES -> routesCommand.handleCommandRoutes(appUser);
