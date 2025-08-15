@@ -1,9 +1,11 @@
 package by.psrer.service.impl;
 
+import by.psrer.callback.AddAdminCallback;
 import by.psrer.callback.AddFaqCallback;
 import by.psrer.callback.AddRouteCallback;
 import by.psrer.callback.DeleteFaqCallback;
 import by.psrer.callback.DeleteRouteCallback;
+import by.psrer.callback.RemoveAdminCallback;
 import by.psrer.service.CallbackService;
 import by.psrer.utils.MessageUtils;
 import by.psrer.utils.impl.Answer;
@@ -20,6 +22,8 @@ public final class CallbackServiceImpl implements CallbackService {
     private final DeleteFaqCallback deleteFaqCallback;
     private final AddRouteCallback addRouteCallback;
     private final DeleteRouteCallback deleteRouteCallback;
+    private final AddAdminCallback addAdminCallback;
+    private final RemoveAdminCallback removeAdminCallback;
 
     @Override
     public void handleCallback(final CallbackQuery callbackQuery) {
@@ -37,6 +41,8 @@ public final class CallbackServiceImpl implements CallbackService {
             case "deleteFaq" -> deleteFaqCallback.handleCallbackDeleteFaq(chatId);
             case "addRoute" -> addRouteCallback.handleCallbackAddRoute(chatId);
             case "deleteRoute" -> deleteRouteCallback.handleCallbackDeleteRoute(chatId);
+            case "addAdmin" -> addAdminCallback.handleCallbackAddAdmin(chatId);
+            case "removeAdmin" -> removeAdminCallback.handleCallbackRemoveAdmin(chatId);
             default -> new Answer("Недоступно", null);
         };
     }

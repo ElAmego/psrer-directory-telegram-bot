@@ -1,9 +1,11 @@
 package by.psrer.service.impl;
 
+import by.psrer.callback.AddAdminCallback;
 import by.psrer.callback.AddFaqCallback;
 import by.psrer.callback.AddRouteCallback;
 import by.psrer.callback.DeleteFaqCallback;
 import by.psrer.callback.DeleteRouteCallback;
+import by.psrer.callback.RemoveAdminCallback;
 import by.psrer.command.admin.AdminsCommand;
 import by.psrer.command.user.CancelCommand;
 import by.psrer.command.user.FaqCommand;
@@ -23,11 +25,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static by.psrer.entity.enums.Role.ADMIN;
 import static by.psrer.entity.enums.UserState.BASIC;
-import static by.psrer.entity.enums.UserState.CHANGE_ROLE;
 import static by.psrer.entity.enums.UserState.DELETE_QUESTION;
 import static by.psrer.entity.enums.UserState.DELETE_ROUTE;
 import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
+import static by.psrer.entity.enums.UserState.REMOVE_ADMIN;
 import static by.psrer.entity.enums.UserState.ROUTE_SELECTION;
+import static by.psrer.entity.enums.UserState.SET_ADMIN;
 import static by.psrer.service.enums.Command.ADMINS;
 import static by.psrer.service.enums.Command.CANCEL;
 
@@ -47,6 +50,8 @@ public final class CommandServiceImpl implements CommandService {
     private final AddRouteCallback addRouteCallback;
     private final DeleteRouteCallback deleteRouteCallback;
     private final AdminsCommand adminsCommand;
+    private final AddAdminCallback addAdminCallback;
+    private final RemoveAdminCallback removeAdminCallback;
 
     @Override
     public void handleCommand(final Update update) {
@@ -63,7 +68,7 @@ public final class CommandServiceImpl implements CommandService {
         final UserState userState = appUser.getUserState();
 
         if ((userState == QUESTION_SELECTION || userState == DELETE_QUESTION || userState == ROUTE_SELECTION ||
-                userState == DELETE_ROUTE || userState == CHANGE_ROLE) && command == CANCEL) {
+                userState == DELETE_ROUTE || userState == SET_ADMIN || userState == REMOVE_ADMIN) && command == CANCEL) {
             messageUtils.deleteUserMessage(appUser, update);
 
             return cancelCommand.cancelSelection(appUser);
@@ -85,6 +90,8 @@ public final class CommandServiceImpl implements CommandService {
                 case ROUTE_IMAGE_NAME -> addRouteCallback.getUserRouteImageName(telegramUserId, text);
                 case ROUTE_IMAGE_URL -> addRouteCallback.getUserRouteImageUrl(telegramUserId, text);
                 case DELETE_ROUTE -> deleteRouteCallback.deleteRoute(telegramUserId, text);
+                case SET_ADMIN -> addAdminCallback.changeUserRole(appUser, text);
+                case REMOVE_ADMIN -> removeAdminCallback.changeUserRole(appUser, text);
                 default -> new Answer("Недоступно", null);
             };
         }
