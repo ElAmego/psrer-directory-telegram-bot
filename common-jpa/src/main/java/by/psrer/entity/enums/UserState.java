@@ -12,5 +12,6 @@ public enum UserState {
     ROUTE_IMAGE_NAME,
     ROUTE_IMAGE_URL,
     DELETE_ROUTE,
-    CHANGE_ROLE
+    SET_ADMIN,
+    REMOVE_ADMIN
 }
