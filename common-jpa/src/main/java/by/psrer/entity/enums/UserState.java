@@ -11,5 +11,6 @@ public enum UserState {
     ROUTE_DESCRIPTION,
     ROUTE_IMAGE_NAME,
     ROUTE_IMAGE_URL,
-    DELETE_ROUTE
+    DELETE_ROUTE,
+    CHANGE_ROLE
 }

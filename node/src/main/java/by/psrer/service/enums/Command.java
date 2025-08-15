@@ -9,6 +9,7 @@ public enum Command {
     HELP("/help"),
     FAQ("/faq"),
     ROUTES("/routes"),
+    ADMINS("/admins"),
     CANCEL("/cancel");
 
     private final String command;
