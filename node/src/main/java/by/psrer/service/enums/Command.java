@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum Command {
     START("/start"),
+    ID("/id"),
     HELP("/help"),
     FAQ("/faq"),
     ROUTES("/routes"),
