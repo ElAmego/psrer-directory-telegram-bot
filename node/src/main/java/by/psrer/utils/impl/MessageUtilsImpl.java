@@ -25,6 +25,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -244,5 +245,18 @@ public final class MessageUtilsImpl implements MessageUtils {
 
             producerService.produceImage(imageDTO);
         }
+    }
+
+    @Override
+    public Optional<Answer> checkLimit(final int limit, final String text) {
+        Optional<Answer> answer = Optional.empty();
+        
+        if (text.length() > limit) {
+            answer = Optional.of(
+                    new Answer("Вы превысили лимит в " + limit + " символов. Введите заново.", null)
+            );
+        }
+        
+        return answer;
     }
 }

@@ -12,6 +12,8 @@ import by.psrer.utils.impl.Answer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static by.psrer.entity.enums.UserState.ROUTE;
 import static by.psrer.entity.enums.UserState.ROUTE_DESCRIPTION;
 import static by.psrer.entity.enums.UserState.ROUTE_IMAGE_NAME;
@@ -26,6 +28,10 @@ public final class AddRouteCallbackImpl implements AddRouteCallback {
     private final AppUserDAO appUserDAO;
     private final RouteDAO routeDAO;
     private final RouteImageDAO routeImageDAO;
+    private final static int ROUTE_NAME_LIMIT = 1000;
+    private final static int ROUTE_DESCRIPTION_URL = 255;
+    private final static int ROUTE_IMAGE_FILE_NAME = 255;
+    private final static int ROUTE_IMAGE_FILE_URL = 255;
 
     @Override
     public Answer handleCallbackAddRoute(final Long chatId) {
@@ -37,6 +43,12 @@ public final class AddRouteCallbackImpl implements AddRouteCallback {
 
     @Override
     public Answer getUserRouteName(final Long chatId, final String routeName) {
+        final Optional<Answer> limitError = messageUtils.checkLimit(ROUTE_NAME_LIMIT, routeName);
+
+        if (limitError.isPresent()) {
+            return limitError.get();
+        }
+
         final String output = "Введите ссылку на описание маршрута (.txt файл) в облаке. Не забудьте выдать общий " +
                 "доступ (Пункт -> Все, у кого есть ссылка):";
 
@@ -53,6 +65,12 @@ public final class AddRouteCallbackImpl implements AddRouteCallback {
 
     @Override
     public Answer getUserRouteDescription(final Long chatId, final String routeDescriptionUrl) {
+        final Optional<Answer> limitError = messageUtils.checkLimit(ROUTE_DESCRIPTION_URL, routeDescriptionUrl);
+
+        if (limitError.isPresent()) {
+            return limitError.get();
+        }
+
         final String output = "Введите название с форматом изображения (Например: image.png) в облаке: ";
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
 
@@ -72,6 +90,12 @@ public final class AddRouteCallbackImpl implements AddRouteCallback {
 
     @Override
     public Answer getUserRouteImageName(final Long chatId, final String routeImageName) {
+        final Optional<Answer> limitError = messageUtils.checkLimit(ROUTE_IMAGE_FILE_NAME, routeImageName);
+
+        if (limitError.isPresent()) {
+            return limitError.get();
+        }
+
         final String output = "Введите ссылку на изображение в облаке. Не забудьте выдать общий доступ (Пункт -> Все," +
                 " у кого есть ссылка): ";
         final AppUser appUser = appUserDAO.findAppUserByTelegramUserId(chatId);
@@ -88,6 +112,12 @@ public final class AddRouteCallbackImpl implements AddRouteCallback {
 
     @Override
     public Answer getUserRouteImageUrl(final Long chatId, final String routeImageUrl) {
+        final Optional<Answer> limitError = messageUtils.checkLimit(ROUTE_IMAGE_FILE_URL, routeImageUrl);
+
+        if (limitError.isPresent()) {
+            return limitError.get();
+        }
+
         final String output = """
                 Маршрут сохранен в базу данных.
 
