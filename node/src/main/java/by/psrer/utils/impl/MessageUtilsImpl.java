@@ -43,8 +43,12 @@ public final class MessageUtilsImpl implements MessageUtils {
     @Override
     public void deleteUserMessage(final AppUser appUser, final Update update) {
         final DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setChatId(appUser.getTelegramUserId());
+        final Long telegramUserId = appUser.getTelegramUserId();
+        deleteMessage.setChatId(telegramUserId);
         deleteMessage.setMessageId(update.getMessage().getMessageId());
+
+        log.debug("Delete user message: " + telegramUserId);
+
         producerService.produceDeleteMessage(deleteMessage);
     }
 
@@ -55,6 +59,7 @@ public final class MessageUtilsImpl implements MessageUtils {
         if (sendMessageLength > TELEGRAM_MESSAGE_LIMIT) {
             final List<Answer> answers = splitAnswer(answer);
             for (final Answer answerFromList : answers) {
+                log.debug("Send text message to " + chatId);
                 sendMessage(chatId, answerFromList);
             }
 
@@ -99,7 +104,6 @@ public final class MessageUtilsImpl implements MessageUtils {
     @Override
     public AppUser findOrSaveAppUser(final Update update) {
         final User telegramUser = update.getMessage().getFrom();
-
         final AppUser persistanceAppUser = appUserDAO.findAppUserByTelegramUserId(telegramUser.getId());
         if (persistanceAppUser == null) {
             final AppUser transientAppUser = AppUser.builder()
@@ -111,8 +115,13 @@ public final class MessageUtilsImpl implements MessageUtils {
                     .role(USER)
                     .build();
 
+            log.debug("Created new user: " + transientAppUser.getTelegramUserId());
+
             return appUserDAO.save(transientAppUser);
         }
+
+        log.debug("Returned user: " + persistanceAppUser.getTelegramUserId());
+
         return persistanceAppUser;
     }
 
@@ -200,6 +209,9 @@ public final class MessageUtilsImpl implements MessageUtils {
     @Override
     public void changeUserState(final AppUser appUser, final UserState userState) {
         appUser.setUserState(userState);
+
+        log.debug("Changed user state to " + userState + ": " + appUser.getTelegramUserId());
+
         appUserDAO.save(appUser);
     }
 
@@ -208,6 +220,9 @@ public final class MessageUtilsImpl implements MessageUtils {
                                                      final Long intermediateValue) {
         appUser.setUserState(userState);
         appUser.setIntermediateValue(intermediateValue);
+
+        log.debug("Changed user state to " + userState + ": " + appUser.getTelegramUserId());
+
         appUserDAO.save(appUser);
     }
 
@@ -224,6 +239,8 @@ public final class MessageUtilsImpl implements MessageUtils {
                     .fileBytes(imageBytes)
                     .fileName(routeImageName)
                     .build();
+
+            log.debug("Send image message to " + telegramUserId);
 
             producerService.produceImage(imageDTO);
         }
