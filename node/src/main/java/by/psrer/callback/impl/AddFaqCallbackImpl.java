@@ -10,6 +10,8 @@ import by.psrer.utils.impl.Answer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static by.psrer.entity.enums.UserState.QUESTION;
 import static by.psrer.entity.enums.UserState.QUESTION_ANSWER;
 import static by.psrer.entity.enums.UserState.QUESTION_SELECTION;
@@ -21,6 +23,8 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
     private final MessageUtils messageUtils;
     private final AppUserDAO appUserDAO;
     private final QuestionDAO questionDAO;
+    private static final int QUESTION_LIMIT = 255;
+    private static final int QUESTION_ANSWER_LIMIT = 4000;
 
     @Override
     public Answer handleCallbackAddFaq(final Long chatId) {
@@ -32,6 +36,12 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
 
     @Override
     public Answer getUserQuestion(final Long chatId, final String question) {
+        final Optional<Answer> limitError = messageUtils.checkLimit(QUESTION_LIMIT, question);
+
+        if (limitError.isPresent()) {
+            return limitError.get();
+        }
+
         final String output = "Введите ответ на вопрос: ";
 
         Question newQuestion = Question.builder()
@@ -47,6 +57,12 @@ public final class AddFaqCallbackImpl implements AddFaqCallback {
 
     @Override
     public Answer getUserQuestionAnswer(final Long chatId, final String questionAnswer) {
+        final Optional<Answer> limitError = messageUtils.checkLimit(QUESTION_ANSWER_LIMIT, questionAnswer);
+
+        if (limitError.isPresent()) {
+            return limitError.get();
+        }
+
         final String output = """
                 Вопрос сохранен в базу данных.
                 
